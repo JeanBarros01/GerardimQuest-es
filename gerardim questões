@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App de Questões</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>App de Questões</h1>
+            <nav>
+                <ul>
+                    <li><a href="#" id="home-link">Home</a></li>
+                    <li><a href="#" id="login-link">Login</a></li>
+                    <li><a href="#" id="register-link">Cadastro</a></li>
+                </ul>
+            </nav>
+        </header>
+        <div id="main-content">
+            <div id="home">
+                <h2>Bem-vindo ao App de Questões</h2>
+                <button id="start-quiz">Começar Quiz</button>
+            </div>
+            <div id="quiz-container" class="hidden">
+                <div id="question"></div>
+                <div id="options"></div>
+                <button id="next-button">Próxima Questão</button>
+            </div>
+            <div id="result" class="hidden"></div>
+            <div id="login-form" class="hidden">
+                <h2>Login</h2>
+                <input type="email" id="login-email" placeholder="Email">
+                <input type="password" id="login-password" placeholder="Senha">
+                <button id="login-button">Login</button>
+            </div>
+            <div id="register-form" class="hidden">
+                <h2>Cadastro</h2>
+                <input type="text" id="register-name" placeholder="Nome">
+                <input type="email" id="register-email" placeholder="Email">
+                <input type="password" id="register-password" placeholder="Senha">
+                <button id="register-button">Cadastrar</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 800px;
+}
+
+header {
+    background-color: #3e2723;
+    color: #fff;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+header nav ul li {
+    margin-left: 20px;
+}
+
+header nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    background-color: #5d4037;
+}
+
+header nav ul li a:hover {
+    background-color: #795548;
+}
+
+.hidden {
+    display: none;
+}
+
+#main-content {
+    text-align: left;
+}
+
+#quiz-container {
+    margin-bottom: 20px;
+}
+
+#question {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+#options button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #795548;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#options button:hover {
+    background-color: #5d4037;
+}
+
+#next-button {
+    background-color: #424242;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    display: none;
+}
+
+#next-button:hover {
+    background-color: #212121;
+}
+
+#result {
+    font-size: 1.2em;
+}
+
+#login-form, #register-form {
+    text-align: center;
+}
+
+#login-form input, #register-form input {
+    display: block;
+    width: 80%;
+    margin: 10px auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#login-button, #register-button {
+    background-color: #424242;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+#login-button:hover, #register-button:hover {
+    background-color: #212121;
+}
+const quizData = [
+    {
+        question: "Qual é a capital do Brasil?",
+        options: ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador"],
+        correct: "Brasília",
+        bank: "CESPE"
+    },
+    {
+        question: "Qual é a maior floresta tropical do mundo?",
+        options: ["Floresta Amazônica", "Floresta Negra", "Floresta do Congo", "Taiga"],
+        correct: "Floresta Amazônica",
+        bank: "FCC"
+    },
+    {
+        question: "Em que ano o Brasil foi descoberto?",
+        options: ["1492", "1500", "1522", "1548"],
+        correct: "1500",
+        bank: "VUNESP"
+    },
+    // Adicione mais questões conforme necessário
+];
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("start-quiz").addEventListener("click", startQuiz);
+    document.getElementById("next-button").addEventListener("click", nextQuestion);
+    document.getElementById("login-link").addEventListener("click", showLogin);
+    document.getElementById("register-link").addEventListener("click", showRegister);
+    document.getElementById("home-link").addEventListener("click", showHome);
+    document.getElementById("login-button").addEventListener("click", login);
+    document.getElementById("register-button").addEventListener("click", register);
+});
+
+function startQuiz() {
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("quiz-container").classList.remove("hidden");
+    loadQuestion();
+}
+
+function loadQuestion() {
+    const currentQuestion = quizData[currentQuestionIndex];
+    document.getElementById("question").innerText = currentQuestion.question;
+    const optionsContainer = document.getElementById("options");
+    optionsContainer.innerHTML = "";
+
+    currentQuestion.options.forEach(option => {
+        const button = document.createElement("button");
+        button.innerText = option;
+        button.addEventListener("click", () => checkAnswer(option));
+        optionsContainer.appendChild(button);
+    });
+
+    document.getElementById("next-button").style.display = "none";
+}
+
+function checkAnswer(selectedOption) {
+    const correctAnswer = quizData[currentQuestionIndex].correct;
+    if (selectedOption === correctAnswer) {
+        score++;
+    }
+    document.getElementById("next-button").style.display = "block";
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < quizData.length) {
+        loadQuestion();
+    } else {
+        showResult();
+    }
+}
+
+function showResult() {
+    document.getElementById("quiz-container").classList.add("hidden");
+    document.getElementById("result").classList.remove("hidden");
+    document.getElementById("result").innerText = `Você acertou ${score} de ${quizData.length} questões.`;
+}
+
+function showLogin() {
+    hideAll();
+    document.getElementById("login-form").classList.remove("hidden");
+}
+
+function showRegister() {
+    hideAll();
+[_{{{CITATION{{{_1{](https://github.com/ricardo-cas/pandas/tree/eefd8f3ed9250c15e029b7ae59a24ef9f7ffc4ab/GUIA_MARKDOWN.MD)
